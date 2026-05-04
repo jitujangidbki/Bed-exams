@@ -1,136 +1,541 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EVS Quiz 100 Questions</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Exam - Environmental Studies (B.Ed)</title>
+    <style>
+        :root {
+            --ntpc-blue: #2c3e50;
+            --ntpc-light-blue: #34495e;
+            --btn-green: #27ae60;
+            --btn-red: #e74c3c;
+            --btn-gray: #bdc3c7;
+            --btn-purple: #8e44ad;
+            --text-dark: #2c3e50;
+            --bg-body: #f4f7f6;
+        }
 
-<style>
-body { font-family: Arial; background:#f4f6f9; margin:0;}
-header {background:#2c3e50;color:white;padding:15px;text-align:center;position:sticky;top:0;}
-#timer {color:#f1c40f;}
-.container {padding:15px;}
-.question {background:white;padding:15px;margin-bottom:10px;border-radius:8px;}
-.options label {display:block;padding:5px;}
-button {width:100%;padding:15px;background:#27ae60;color:white;border:none;font-size:18px;border-radius:8px;}
-#result {display:none;background:white;padding:20px;margin-top:20px;border-radius:8px;text-align:center;}
-.pass{color:green;} .fail{color:red;}
-</style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: var(--bg-body); overflow: hidden; }
+
+        /* Header Layout */
+        header {
+            background: var(--ntpc-blue);
+            color: white;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #f39c12;
+            height: 60px;
+        }
+
+        .exam-title h1 { font-size: 1.2rem; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info img { height: 40px; border: 1px solid white; border-radius: 3px; }
+
+        /* Main Container */
+        .main-wrapper {
+            display: flex;
+            height: calc(100vh - 60px);
+            padding: 5px;
+            gap: 5px;
+        }
+
+        /* Left Side: Question Area */
+        .question-section {
+            flex: 3;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ccc;
+        }
+
+        .section-bar {
+            background: #eee;
+            padding: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .timer-container {
+            background: #fff;
+            padding: 5px 15px;
+            border: 1px solid #d35400;
+            color: #d35400;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .question-content {
+            flex-grow: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .q-label { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; display: block; color: var(--ntpc-blue); }
+        .q-text { font-size: 1.25rem; margin-bottom: 25px; line-height: 1.5; }
+
+        .options-list { list-style: none; }
+        .option-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .option-item:hover { background-color: #f9f9f9; }
+        .option-item input { margin-right: 15px; transform: scale(1.3); cursor: pointer; }
+        .option-item.selected { background-color: #d1ecf1; border-color: #bee5eb; }
+
+        /* Footer Buttons */
+        .controls {
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        .btn-gray { background: #6c757d; color: white; }
+        .btn-blue { background: #007bff; color: white; }
+        .btn-green { background: var(--btn-green); color: white; }
+        .btn-red { background: var(--btn-red); color: white; }
+
+        /* Right Side: Sidebar */
+        .sidebar {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            min-width: 320px;
+        }
+
+        .candidate-box {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            background: #f1f1f1;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .palette-header {
+            padding: 10px;
+            background: #2c3e50;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        .pal-btn {
+            height: 40px;
+            width: 100%;
+            border: 1px solid #ccc;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pal-btn.answered { background: var(--btn-green); color: white; border: none; border-radius: 50% 50% 0 0; }
+        .pal-btn.not-answered { background: var(--btn-red); color: white; border: none; border-radius: 0 0 50% 50%; }
+        .pal-btn.current { border: 2px solid #000; font-weight: bold; }
+
+        .legend {
+            padding: 10px;
+            font-size: 0.8rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            border-top: 1px solid #ccc;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .box { width: 15px; height: 15px; border: 1px solid #ccc; }
+
+        .submit-area {
+            margin-top: auto;
+            padding: 15px;
+            background: #f1f1f1;
+            text-align: center;
+        }
+
+        /* Result Overlay */
+        #result-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .result-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .res-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
+        .res-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+
+        @media (max-width: 850px) {
+            .main-wrapper { flex-direction: column; overflow-y: auto; }
+            .sidebar { min-width: 100%; }
+            body { overflow: auto; }
+        }
+    </style>
 </head>
-
 <body>
 
 <header>
-<h2>Environmental Studies Quiz (B.Ed Rajasthan)</h2>
-<div id="timer">60:00</div>
+    <div class="exam-title">
+        <h1>RAILWAY RECRUITMENT BOARD (CBT)</h1>
+    </div>
+    <div class="user-info">
+        <div style="text-align: right">
+            <div style="font-weight: bold">Candidate Name: Exam Taker</div>
+            <div style="font-size: 0.8rem">Subject: Environmental Studies</div>
+        </div>
+        <img src="https://via.placeholder.com/40" alt="User">
+    </div>
 </header>
 
-<div class="container" id="quiz"></div>
-<div class="container"><button onclick="submitQuiz()">Submit</button></div>
-<div class="container" id="result"></div>
+<div class="main-wrapper" id="exam-ui">
+    <div class="question-section">
+        <div class="section-bar">
+            <span>Question Type: MCQ</span>
+            <div class="timer-container">Time Left: <span id="timer">60:00</span></div>
+        </div>
+        
+        <div class="question-content" id="q-container">
+            <!-- Question will be injected here -->
+        </div>
+
+        <div class="controls">
+            <div>
+                <button class="btn btn-gray" onclick="clearResponse()">Clear Response</button>
+            </div>
+            <div>
+                <button class="btn btn-gray" id="prev-btn" onclick="prevQ()">Previous</button>
+                <button class="btn btn-blue" id="next-btn" onclick="nextQ()">Save & Next</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="candidate-box">
+            <img src="https://via.placeholder.com/60" alt="Candidate" style="border:1px solid #ccc">
+            <div>
+                <strong>Roll No: 2024001</strong><br>
+                <span>B.Ed Unit Test</span>
+            </div>
+        </div>
+        
+        <div class="palette-header">Question Palette</div>
+        <div class="palette-grid" id="palette">
+            <!-- Buttons 1-100 -->
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="box" style="background:var(--btn-green)"></div> Answered</div>
+            <div class="legend-item"><div class="box" style="background:var(--btn-red)"></div> Not Answered</div>
+            <div class="legend-item"><div class="box" style="background:white"></div> Not Visited</div>
+            <div class="legend-item"><div class="box" style="background:var(--btn-purple)"></div> Marked</div>
+        </div>
+
+        <div class="submit-area">
+            <button class="btn btn-green" style="width: 100%; padding: 15px;" onclick="triggerSubmit()">Submit Exam</button>
+        </div>
+    </div>
+</div>
+
+<div id="result-overlay">
+    <div class="result-modal">
+        <h2 style="color:var(--ntpc-blue)">Examination Summary</h2>
+        <hr>
+        <table class="res-table">
+            <tr><td>Total Questions</td><td>100</td></tr>
+            <tr><td>Attempted</td><td id="res-att">0</td></tr>
+            <tr><td>Correct Answers</td><td id="res-cor" style="color:green; font-weight:bold;">0</td></tr>
+            <tr><td>Wrong Answers</td><td id="res-wro" style="color:red">0</td></tr>
+            <tr><td>Final Score</td><td id="res-sco" style="font-size:1.2rem; font-weight:bold;">0</td></tr>
+            <tr><td>Result Status</td><td id="res-sta">0</td></tr>
+        </table>
+        <button class="btn btn-blue" onclick="location.reload()">Re-Take Exam</button>
+    </div>
+</div>
 
 <script>
+    // Database of 100 Hindi MCQ Questions
+    const questions = [
+        // Unit 1: Nature (15)
+        { q: "पर्यावरण के मुख्य घटक कौन से हैं?", o: ["जैविक", "अजैविक", "दोनों (A) और (B)", "इनमें से कोई नहीं"], a: 2 },
+        { q: "पृथ्वी के चारों ओर गैसों के आवरण को क्या कहते हैं?", o: ["जलमंडल", "वायुमंडल", "स्थलमंडल", "प्रकाशमंडल"], a: 1 },
+        { q: "क्षोभमंडल में वायुमंडल की कुल गैसों का कितना भाग पाया जाता है?", o: ["50%", "75%", "90%", "99%"], a: 2 },
+        { q: "पर्यावरण का 'अजैविक' कारक कौन सा है?", o: ["पादप", "जंतु", "मृदा", "जीवाणु"], a: 2 },
+        { q: "वनस्पति किस घटक के अंतर्गत आती है?", o: ["जैविक", "अजैविक", "भौतिक", "रासायनिक"], a: 0 },
+        { q: "विश्व पर्यावरण दिवस कब मनाया जाता है?", o: ["5 जुलाई", "5 जून", "22 मार्च", "16 सितम्बर"], a: 1 },
+        { q: "पर्यावरण शब्द की उत्पत्ति किस भाषा से हुई है?", o: ["लैटिन", "ग्रीक", "फ्रेंच", "जर्मन"], a: 2 },
+        { q: "पारिस्थितिकी तंत्र का अध्ययन क्या कहलाता है?", o: ["बायोलॉजी", "इकोलॉजी", "जियोलॉजी", "एन्थ्रपोलॉजी"], a: 1 },
+        { q: "ओजोन परत वायुमंडल की किस परत में स्थित है?", o: ["क्षोभमंडल", "समतापमंडल", "मध्यमंडल", "बाह्यमंडल"], a: 1 },
+        { q: "अल्ट्रावायलेट किरणों से हमारी रक्षा कौन करता है?", o: ["CO2", "O2", "O3 (ओजोन)", "N2"], a: 2 },
+        { q: "प्रकाश संश्लेषण क्रिया में पौधे कौन सी गैस छोड़ते हैं?", o: ["नाइट्रोजन", "कार्बन डाइऑक्साइड", "ऑक्सीजन", "हाइड्रोजन"], a: 2 },
+        { q: "वायुमंडल में सर्वाधिक मात्रा में पाई जाने वाली गैस है:", o: ["ऑक्सीजन", "नाइट्रोजन", "आर्गन", "नियोन"], a: 1 },
+        { q: "स्थलमंडल की सबसे ऊपरी परत को कहते हैं:", o: ["क्रस्ट", "मेंटल", "कोर", "मैग्मा"], a: 0 },
+        { q: "जैव मंडल में शामिल हैं:", o: ["केवल भूमि", "केवल वायु", "भूमि, जल और वायु", "केवल जंतु"], a: 2 },
+        { q: "पर्यावरण शिक्षा का मुख्य उद्देश्य है:", o: ["प्रदूषण बढ़ाना", "संसाधनों का दोहन", "पर्यावरण संरक्षण", "जनसंख्या वृद्धि"], a: 2 },
 
-// ✅ 100 REAL QUESTIONS
-const questions = [
-{q:"पर्यावरण का अर्थ क्या है?",options:["आसपास का परिवेश","केवल पेड़","केवल जल","केवल जीव"],answer:0},
-{q:"प्रकृति के मुख्य घटक कौन से हैं?",options:["जैविक व अजैविक","केवल जीव","केवल जल","केवल वायु"],answer:0},
-{q:"सूर्य ऊर्जा का मुख्य स्रोत है?",options:["हाँ","नहीं","कभी-कभी","अज्ञात"],answer:0},
-{q:"जल चक्र किसे कहते हैं?",options:["जल का चक्रण","मिट्टी का बहाव","हवा का बहाव","ऊर्जा प्रवाह"],answer:0},
-{q:"वायु में ऑक्सीजन प्रतिशत कितना है?",options:["21%","50%","78%","10%"],answer:0},
+        // Unit 2: Resources (15)
+        { q: "कोयला किस प्रकार का संसाधन है?", o: ["नवीकरणीय", "अनवीकरणीय", "अक्षय", "इनमें से कोई नहीं"], a: 1 },
+        { q: "सौर ऊर्जा का स्रोत है:", o: ["नाभिकीय विखंडन", "नाभिकीय संलयन", "कोयला दहन", "गैस दहन"], a: 1 },
+        { q: "जल एक _________ संसाधन है।", o: ["जैविक", "अजैविक", "सीमित", "नवीकरणीय चक्रीय"], a: 3 },
+        { q: "खनिज संसाधन किस श्रेणी में आते हैं?", o: ["समाप्य", "असमाप्य", "मानव निर्मित", "अदृश्य"], a: 0 },
+        { q: "भारत में वन अनुसंधान संस्थान (FRI) कहाँ स्थित है?", o: ["दिल्ली", "भोपाल", "देहरादून", "जयपुर"], a: 2 },
+        { q: "राजस्थान का राजकीय वृक्ष क्या है?", o: ["नीम", "खेजड़ी", "पीपल", "बरगद"], a: 1 },
+        { q: "चिपको आंदोलन की शुरुआत किसने की?", o: ["सुन्दरलाल बहुगुणा", "मेधा पाटेकर", "अमृता देवी", "राजेंद्र सिंह"], a: 0 },
+        { q: "विश्व जल दिवस कब मनाया जाता है?", o: ["22 अप्रैल", "22 मार्च", "5 जून", "11 जुलाई"], a: 1 },
+        { q: "दूधवा राष्ट्रीय उद्यान कहाँ स्थित है?", o: ["मध्य प्रदेश", "उत्तर प्रदेश", "राजस्थान", "गुजरात"], a: 1 },
+        { q: "जीवाश्म ईंधन का उदाहरण है:", o: ["लकड़ी", "पवन", "पेट्रोलियम", "सौर"], a: 2 },
+        { q: "सतत विकास के लिए क्या आवश्यक है?", o: ["संसाधनों का अंधाधुंध उपयोग", "संसाधनों का संरक्षण", "जनसंख्या वृद्धि", "औद्योगीकरण"], a: 1 },
+        { q: "बाक्साइट किसका प्रमुख अयस्क है?", o: ["तांबा", "लोहा", "एल्युमिनियम", "सोना"], a: 2 },
+        { q: "वर्षा जल संचयन का लाभ है:", o: ["बाढ़ आना", "भूजल स्तर में सुधार", "मिट्टी अपरदन", "मच्छर पैदा करना"], a: 1 },
+        { q: "पवन चक्की के लिए अनुकूल राज्य है:", o: ["बिहार", "उत्तर प्रदेश", "राजस्थान", "दिल्ली"], a: 2 },
+        { q: "श्वेत कोयला किसे कहा जाता है?", o: ["कपास", "बर्फ", "जल विद्युत", "यूरेनियम"], a: 2 },
 
-{q:"नवीकरणीय संसाधन कौन है?",options:["सौर ऊर्जा","कोयला","पेट्रोल","डीजल"],answer:0},
-{q:"अनवीकरणीय संसाधन कौन है?",options:["कोयला","सूर्य","पवन","जल"],answer:0},
-{q:"जल संरक्षण का तरीका क्या है?",options:["वर्षा जल संचयन","जल बहाना","पेड़ काटना","नाली खोलना"],answer:0},
-{q:"वन संसाधन क्यों महत्वपूर्ण हैं?",options:["ऑक्सीजन देते हैं","प्रदूषण बढ़ाते हैं","कुछ नहीं","जल खत्म करते हैं"],answer:0},
-{q:"खनिज संसाधन किसमें मिलते हैं?",options:["भूमि","जल","वायु","आकाश"],answer:0},
+        // Unit 3: Ecology (15)
+        { q: "खाद्य श्रृंखला में ऊर्जा का प्रवाह होता है:", o: ["एकदिशीय", "द्विदिशीय", "बहुदिशीय", "चक्रीय"], a: 0 },
+        { q: "पारिस्थितिकी तंत्र का अजैविक घटक है:", o: ["घास", "तापमान", "मेढक", "शेर"], a: 1 },
+        { q: "हरे पौधे कहलाते हैं:", o: ["उपभोक्ता", "अपघटक", "उत्पादक", "सर्वाहारी"], a: 2 },
+        { q: "प्रथम श्रेणी के उपभोक्ता होते हैं:", o: ["मांसाहारी", "शाकाहारी", "सर्वाहारी", "अपमार्जक"], a: 1 },
+        { q: "पारिस्थितिकी तंत्र में ऊर्जा का मुख्य स्रोत है:", o: ["चंद्रमा", "एटीपी", "सूर्य का प्रकाश", "पृथ्वी"], a: 2 },
+        { q: "ऊर्जा का पिरामिड हमेशा कैसा होता है?", o: ["उल्टा", "सीधा", "अनियमित", "वर्गाकार"], a: 1 },
+        { q: "खाद्य जाल (Food Web) दर्शाता है:", o: ["ऊर्जा का ह्रास", "जीवों का समूह", "पोषण संबंधों की जटिलता", "भोजन की बर्बादी"], a: 2 },
+        { q: "मरुस्थल में उगने वाले पौधे कहलाते हैं:", o: ["जलोद्भिद", "मरुद्भिद (Xerophytes)", "लवणोद्भिद", "मद्योंद्भिद"], a: 1 },
+        { q: "सर्वाधिक स्थायी पारिस्थितिकी तंत्र है:", o: ["वन", "पर्वत", "मरुस्थल", "समुद्र"], a: 3 },
+        { q: "जीवाणु और कवक क्या कहलाते हैं?", o: ["उत्पादक", "प्राथमिक उपभोक्ता", "अपघटक", "द्वितीय उपभोक्ता"], a: 2 },
+        { q: "लिंडमैन के अनुसार अगले स्तर पर कितनी ऊर्जा पहुँचती है?", o: ["50%", "10%", "90%", "1%"], a: 1 },
+        { q: "एक क्षेत्र के सभी जीव और वातावरण मिलकर बनाते हैं:", o: ["समुदाय", "पारिस्थितिकी तंत्र", "बायोम", "जनसंख्या"], a: 1 },
+        { q: "घास-स्थलीय तंत्र में टिड्डा है:", o: ["उत्पादक", "प्राथमिक उपभोक्ता", "द्वितीय उपभोक्ता", "तृतीय उपभोक्ता"], a: 1 },
+        { q: "पर्यावरण में ऊर्जा का प्रवेश किसके द्वारा होता है?", o: ["जंतुओं", "मनुष्यों", "पौधों", "कवकों"], a: 2 },
+        { q: "इकोलॉजी (Ecology) शब्द किसने दिया?", o: ["अर्नेस्ट हेकल", "चार्ल्स डार्विन", "ए.जी. टांसले", "अरस्तू"], a: 0 },
 
-{q:"पारिस्थितिकी का अर्थ क्या है?",options:["जीव व पर्यावरण का अध्ययन","केवल जीव","केवल जल","केवल मिट्टी"],answer:0},
-{q:"खाद्य श्रृंखला क्या है?",options:["ऊर्जा प्रवाह","जल चक्र","मिट्टी चक्र","वायु चक्र"],answer:0},
-{q:"उत्पादक कौन हैं?",options:["पौधे","जानवर","मनुष्य","कीट"],answer:0},
-{q:"उपभोक्ता कौन हैं?",options:["जानवर","पौधे","जल","मिट्टी"],answer:0},
-{q:"अपघटक कौन हैं?",options:["बैक्टीरिया","पेड़","जानवर","पानी"],answer:0},
+        // Unit 4: Biodiversity (15)
+        { q: "भारत का राष्ट्रीय उद्यान 'जिम कॉर्बेट' कहाँ है?", o: ["उत्तर प्रदेश", "उत्तराखंड", "मध्य प्रदेश", "असम"], a: 1 },
+        { q: "काजीरंगा किसके लिए प्रसिद्ध है?", o: ["बाघ", "हाथी", "एक सींग वाला गेंडा", "शेर"], a: 2 },
+        { q: "रेड डाटा बुक (Red Data Book) का संबंध है:", o: ["नदियों से", "विलुप्ति के कगार पर जीव", "खनिजों से", "वृक्षारोपण से"], a: 1 },
+        { q: "भारत में 'हॉटस्पॉट' क्षेत्र है:", o: ["गंगा का मैदान", "पूर्वी घाट", "पश्चिमी घाट", "थार मरुस्थल"], a: 2 },
+        { q: "विश्व जैव-विविधता दिवस है:", o: ["22 मई", "5 जून", "16 सितम्बर", "10 अक्टूबर"], a: 0 },
+        { q: "गिर अभयारण्य कहाँ स्थित है?", o: ["राजस्थान", "महाराष्ट्र", "गुजरात", "मध्य प्रदेश"], a: 2 },
+        { q: "संकटग्रस्त जातियों का रिकॉर्ड कौन रखता है?", o: ["WWF", "IUCN", "UNESCO", "UNEP"], a: 1 },
+        { q: "भारत का राष्ट्रीय जलीय जीव है:", o: ["मछली", "गंगा डॉल्फिन", "कछुआ", "मगरमच्छ"], a: 1 },
+        { q: "राजस्थान का राज्य पक्षी है:", o: ["मोर", "गोडावण", "तोता", "कोयल"], a: 1 },
+        { q: "जैव विविधता का अर्थ है:", o: ["पौधों की विविधता", "जंतुओं की विविधता", "जीवों की विभिन्न प्रजातियां", "मनुष्यों की संख्या"], a: 2 },
+        { q: "साइलेंट वैली (शांत घाटी) किस राज्य में है?", o: ["केरल", "तमिलनाडु", "असम", "हिमाचल"], a: 0 },
+        { q: "प्रोजेक्ट टाइगर कब शुरू हुआ?", o: ["1973", "1980", "1992", "2000"], a: 0 },
+        { q: "मरु राष्ट्रीय उद्यान कहाँ है?", o: ["जोधपुर", "जैसलमेर", "बीकानेर", "बाड़मेर"], a: 1 },
+        { q: "जैव विविधता के विनाश का मुख्य कारण है:", o: ["प्राकृतिक आवास का नष्ट होना", "कम वर्षा", "शाकाहार", "पर्यटन"], a: 0 },
+        { q: "सुंदरवन टाइगर रिजर्व कहाँ है?", o: ["ओडिशा", "पश्चिम बंगाल", "असम", "बिहार"], a: 1 },
 
-{q:"जैव विविधता क्या है?",options:["जीवों की विविधता","केवल पौधे","केवल जानवर","कुछ नहीं"],answer:0},
-{q:"वन्य जीव संरक्षण क्यों जरूरी है?",options:["प्राकृतिक संतुलन","मनोरंजन","शिकार","कुछ नहीं"],answer:0},
-{q:"राष्ट्रीय उद्यान क्या है?",options:["संरक्षित क्षेत्र","खेत","घर","कारखाना"],answer:0},
-{q:"अभयारण्य क्या है?",options:["जानवरों का संरक्षण क्षेत्र","खेती क्षेत्र","घर","नदी"],answer:0},
-{q:"IUCN का कार्य क्या है?",options:["संरक्षण","विकास","व्यापार","शिक्षा"],answer:0},
+        // Unit 5: Pollution (15)
+        { q: "अम्ल वर्षा के लिए उत्तरदायी गैस है:", o: ["CO2", "SO2 और NO2", "CFC", "CH4"], a: 1 },
+        { q: "ग्लोबल वार्मिंग का मुख्य कारण है:", o: ["CO2", "O2", "N2", "Ar"], a: 0 },
+        { q: "वायु प्रदूषण का सूचक (Indicator) है:", o: ["शैवाल", "कवक", "लाइकन", "नीम"], a: 2 },
+        { q: "ध्वनि प्रदूषण मापने की इकाई है:", o: ["हर्ट्ज़", "डेसीबल", "मीटर", "पास्कल"], a: 1 },
+        { q: "मिनीमाता रोग किसके कारण होता है?", o: ["सीसा", "पारा (Mercury)", "कैडमियम", "लोहा"], a: 1 },
+        { q: "गंगा सफाई योजना कब शुरू हुई?", o: ["1985", "2014", "2000", "1990"], a: 0 },
+        { q: "ओजोन छिद्र सबसे अधिक कहाँ देखा गया है?", o: ["भूमध्य रेखा", "उत्तरी ध्रुव", "दक्षिणी ध्रुव (अंटार्कटिका)", "कर्क रेखा"], a: 2 },
+        { q: "बी.ओ.डी. (BOD) परीक्षण किया जाता है:", o: ["वायु प्रदूषण हेतु", "जल प्रदूषण हेतु", "मृदा प्रदूषण हेतु", "ध्वनि हेतु"], a: 1 },
+        { q: "ग्रीन हाउस गैस नहीं है:", o: ["मीथेन", "CO2", "नाइट्रोजन", "CFC"], a: 2 },
+        { q: "फ्लोरोसिस बीमारी का कारण है:", o: ["वायु प्रदूषण", "जल में फ्लोराइड", "ध्वनि", "धूल"], a: 1 },
+        { q: "इताई-इताई रोग का कारण है:", o: ["कैडमियम", "पारा", "आर्सेनिक", "कॉपर"], a: 0 },
+        { q: "कौन सा ईधन न्यूनतम पर्यावरण प्रदूषण फैलाता है?", o: ["कोयला", "डीजल", "हाइड्रोजन", "मिट्टी का तेल"], a: 2 },
+        { q: "सी.एन.जी. (CNG) का मुख्य घटक है:", o: ["ब्यूटेन", "मीथेन", "प्रोपेन", "ईथेन"], a: 1 },
+        { q: "नगरों में जल प्रदूषण का मुख्य स्रोत है:", o: ["वर्षा जल", "औद्योगिक कचरा/सीवेज", "कृषि", "पशु"], a: 1 },
+        { q: "धुंध (Smog) किसका मिश्रण है?", o: ["धुआं और कोहरा", "गैस और जल", "धूल और गैस", "ओस और धुआं"], a: 0 },
 
-{q:"वायु प्रदूषण का कारण क्या है?",options:["धुआं","पेड़","जल","मिट्टी"],answer:0},
-{q:"जल प्रदूषण का कारण क्या है?",options:["कचरा","हवा","पेड़","सूर्य"],answer:0},
-{q:"ध्वनि प्रदूषण क्या है?",options:["शोर","जल","मिट्टी","हवा"],answer:0},
-{q:"मृदा प्रदूषण किससे होता है?",options:["रसायन","जल","वायु","सूर्य"],answer:0},
-{q:"ओजोन परत किससे नष्ट होती है?",options:["CFC","O2","CO2","N2"],answer:0},
+        // Unit 6: Social Issues (15)
+        { q: "क्योटो प्रोटोकॉल संबंधित है:", o: ["ओजोन संरक्षण", "जलवायु परिवर्तन", "जैव विविधता", "परमाणु ऊर्जा"], a: 1 },
+        { q: "विश्व पृथ्वी दिवस मनाया जाता है:", o: ["22 मार्च", "22 अप्रैल", "5 जून", "15 अगस्त"], a: 1 },
+        { q: "वर्षा जल संचयन की प्राचीन विधि 'खादीन' कहाँ प्रसिद्ध है?", o: ["गुजरात", "राजस्थान", "मध्य प्रदेश", "बिहार"], a: 1 },
+        { q: "नर्मदा बचाओ आंदोलन के नेता कौन थे?", o: ["मेधा पाटेकर", "राकेश शर्मा", "अन्ना हजारे", "अरविन्द केजरीवाल"], a: 0 },
+        { q: "पर्यावरण संरक्षण अधिनियम कब पारित हुआ?", o: ["1972", "1986", "1992", "2002"], a: 1 },
+        { q: "मॉन्ट्रियल प्रोटोकॉल किससे संबंधित है?", o: ["अम्ल वर्षा", "ओजोन परत", "वन्यजीव", "जनसंख्या"], a: 1 },
+        { q: "आपदा प्रबंधन एक्ट कब बना?", o: ["2005", "2000", "2010", "1995"], a: 0 },
+        { q: "सतत विकास (SDG) में कुल कितने लक्ष्य हैं?", o: ["10", "15", "17", "20"], a: 2 },
+        { q: "अपिको (Appiko) आंदोलन कहाँ हुआ?", o: ["उत्तर प्रदेश", "उत्तराखंड", "कर्नाटक", "राजस्थान"], a: 2 },
+        { q: "तरुण भारत संघ के संस्थापक कौन हैं?", o: ["राजेंद्र सिंह", "सलीम अली", "मेधा पाटेकर", "चंडी प्रसाद भट्ट"], a: 0 },
+        { q: "ग्लोबल वार्मिंग से समुद्र का स्तर:", o: ["घटेगा", "बढ़ेगा", "स्थिर रहेगा", "इनमें से कोई नहीं"], a: 1 },
+        { q: "राजस्थान में जल पुरुष किसे कहा जाता है?", o: ["राजेंद्र सिंह", "भैरोसिंह शेखावत", "विजय दान देथा", "अशोक गहलोत"], a: 0 },
+        { q: "वन्यजीव संरक्षण अधिनियम कब बना?", o: ["1972", "1986", "1990", "1960"], a: 0 },
+        { q: "जैव विविधता अधिनियम (India) कब आया?", o: ["1992", "2002", "2010", "1980"], a: 1 },
+        { q: "पर्यावरण शिक्षा में '3R' है:", o: ["Reduce, Reuse, Recycle", "Read, Write, Run", "Red, Right, Rice", "Rain, River, Road"], a: 0 },
 
-{q:"ग्रीनहाउस गैस कौन है?",options:["CO2","O2","H2","N2"],answer:0},
-{q:"ग्लोबल वार्मिंग क्या है?",options:["ताप वृद्धि","ठंड","बारिश","हवा"],answer:0},
-{q:"अम्ल वर्षा किससे होती है?",options:["SO2","O2","H2","N2"],answer:0},
-{q:"प्लास्टिक प्रदूषण क्यों खतरनाक है?",options:["नष्ट नहीं होता","जलता है","घुलता है","उड़ता है"],answer:0},
-{q:"रीसाइक्लिंग क्या है?",options:["पुनः उपयोग","फेंकना","जलाना","तोड़ना"],answer:0},
+        // Unit 7: Population (10)
+        { q: "विश्व जनसंख्या दिवस कब मनाया जाता है?", o: ["11 जुलाई", "1 मई", "5 जून", "1 दिसंबर"], a: 0 },
+        { q: "जनसंख्या का अध्ययन क्या कहलाता है?", o: ["बायोग्राफी", "डेमोग्राफी", "जियोलॉजी", "एथ्नोग्राफी"], a: 1 },
+        { q: "भारत में सर्वाधिक जनसंख्या वाला राज्य है:", o: ["बिहार", "उत्तर प्रदेश", "राजस्थान", "महाराष्ट्र"], a: 1 },
+        { q: "जनसंख्या घनत्व का अर्थ है:", o: ["कुल जनसंख्या", "प्रति वर्ग किमी व्यक्तियों की संख्या", "शहरों की जनसंख्या", "गांवों की संख्या"], a: 1 },
+        { q: "2011 की जनगणना के अनुसार भारत की साक्षरता दर थी:", o: ["74.04%", "60%", "80%", "50%"], a: 0 },
+        { q: "माल्थस का सिद्धांत संबंधित है:", o: ["पर्यावरण", "जनसंख्या वृद्धि", "खनिज", "शिक्षा"], a: 1 },
+        { q: "लिंगानुपात का अर्थ है प्रति 1000 पुरुषों पर:", o: ["बच्चों की संख्या", "महिलाओं की संख्या", "वृद्धों की संख्या", "शहरियों की संख्या"], a: 1 },
+        { q: "न्यूनतम जनसंख्या वाला राज्य है:", o: ["सिक्किम", "गोवा", "त्रिपुरा", "मिजोरम"], a: 0 },
+        { q: "शहरीकरण का मुख्य कारण है:", o: ["गाँवों में शांति", "रोजगार की तलाश", "प्रदूषण", "खेती"], a: 1 },
+        { q: "परिवार नियोजन कार्यक्रम भारत में कब शुरू हुआ?", o: ["1952", "1960", "1975", "1990"], a: 0 }
+    ];
 
-{q:"सामाजिक मुद्दे क्या हैं?",options:["समाज से जुड़े प्रश्न","व्यक्ति","घर","नदी"],answer:0},
-{q:"गरीबी का कारण क्या है?",options:["अशिक्षा","ज्ञान","धन","संसाधन"],answer:0},
-{q:"स्वच्छता क्यों जरूरी है?",options:["स्वास्थ्य","बीमारी","गंदगी","कुछ नहीं"],answer:0},
-{q:"पर्यावरण शिक्षा क्यों जरूरी है?",options:["जागरूकता","मनोरंजन","खेल","आराम"],answer:0},
-{q:"सतत विकास क्या है?",options:["भविष्य बचाना","नष्ट करना","खर्च","व्यर्थ"],answer:0},
+    let currentQ = 0;
+    let answers = new Array(100).fill(null);
+    let visited = new Array(100).fill(false);
+    let timeLeft = 3600;
 
-{q:"जनसंख्या वृद्धि का प्रभाव क्या है?",options:["संसाधन दबाव","विकास","शांति","संतुलन"],answer:0},
-{q:"जनसंख्या घनत्व क्या है?",options:["जनसंख्या/क्षेत्र","क्षेत्र/जनसंख्या","जल","वायु"],answer:0},
-{q:"परिवार नियोजन क्यों जरूरी है?",options:["जनसंख्या नियंत्रण","वृद्धि","खर्च","कुछ नहीं"],answer:0},
-{q:"शहरीकरण क्या है?",options:["शहर वृद्धि","गांव वृद्धि","वन वृद्धि","जल वृद्धि"],answer:0},
-{q:"प्रवास क्या है?",options:["स्थान परिवर्तन","रुकना","बैठना","खेल"],answer:0}
-];
+    // Load Question
+    function loadQuestion(index) {
+        currentQ = index;
+        visited[index] = true;
+        const q = questions[index];
+        const container = document.getElementById('q-container');
+        
+        let optionsHtml = '';
+        q.o.forEach((opt, i) => {
+            const isChecked = answers[index] === i ? 'checked' : '';
+            optionsHtml += `
+                <li class="option-item ${answers[index] === i ? 'selected' : ''}" onclick="selectOpt(${i})">
+                    <input type="radio" name="answer" value="${i}" ${isChecked}>
+                    <span>${String.fromCharCode(65 + i)}. ${opt}</span>
+                </li>
+            `;
+        });
 
-// 🔥 auto-fill remaining upto 100
-while(questions.length < 100){
-    questions.push({...questions[questions.length % 40]});
-}
+        container.innerHTML = `
+            <span class="q-label">Question No. ${index + 1}</span>
+            <div class="q-text">${q.q}</div>
+            <ul class="options-list">${optionsHtml}</ul>
+        `;
 
-const quizDiv=document.getElementById("quiz");
+        updatePalette();
+        
+        // Disable/Enable buttons
+        document.getElementById('prev-btn').disabled = (index === 0);
+        document.getElementById('next-btn').innerText = (index === 99) ? "Finish" : "Save & Next";
+    }
 
-questions.forEach((q,i)=>{
-    let div=document.createElement("div");
-    div.className="question";
-    div.innerHTML=`<p>Q${i+1}. ${q.q}</p>`;
-    
-    let opt="";
-    q.options.forEach((o,j)=>{
-        opt+=`<label><input type="radio" name="q${i}" value="${j}">${o}</label>`;
-    });
+    // Select Option
+    window.selectOpt = (val) => {
+        answers[currentQ] = val;
+        loadQuestion(currentQ);
+    };
 
-    div.innerHTML+=opt;
-    quizDiv.appendChild(div);
-});
+    // Navigation
+    window.nextQ = () => {
+        if (currentQ < 99) {
+            loadQuestion(currentQ + 1);
+        } else {
+            triggerSubmit();
+        }
+    };
 
-// TIMER
-let time=3600;
-let t=setInterval(()=>{
-let m=Math.floor(time/60);
-let s=time%60;
-document.getElementById("timer").innerText=`${m}:${s<10?'0'+s:s}`;
-if(time<=0){clearInterval(t);alert("Time Over");submitQuiz();}
-time--;
-},1000);
+    window.prevQ = () => {
+        if (currentQ > 0) loadQuestion(currentQ - 1);
+    };
 
-// RESULT
-function submitQuiz(){
-clearInterval(t);
-let score=0;
-questions.forEach((q,i)=>{
-let a=document.querySelector(`input[name="q${i}"]:checked`);
-if(a && parseInt(a.value)===q.answer) score++;
-});
-let p=score;
-document.getElementById("result").style.display="block";
-document.getElementById("result").innerHTML=`
-<h2>Result</h2>
-<p>${score}/100</p>
-<p>${p}%</p>
-<h3 class="${p>=50?'pass':'fail'}">${p>=50?'Pass':'Fail'}</h3>
-`;
-window.scrollTo(0,document.body.scrollHeight);
-}
+    window.clearResponse = () => {
+        answers[currentQ] = null;
+        loadQuestion(currentQ);
+    };
+
+    // Update Palette UI
+    function updatePalette() {
+        const palette = document.getElementById('palette');
+        palette.innerHTML = '';
+        for (let i = 0; i < 100; i++) {
+            let statusClass = '';
+            if (i === currentQ) statusClass = 'current';
+            else if (answers[i] !== null) statusClass = 'answered';
+            else if (visited[i]) statusClass = 'not-answered';
+
+            const btn = document.createElement('button');
+            btn.className = `pal-btn ${statusClass}`;
+            btn.innerText = i + 1;
+            btn.onclick = () => loadQuestion(i);
+            palette.appendChild(btn);
+        }
+    }
+
+    // Timer
+    function startTimer() {
+        const timerObj = document.getElementById('timer');
+        const interval = setInterval(() => {
+            timeLeft--;
+            let mins = Math.floor(timeLeft / 60);
+            let secs = timeLeft % 60;
+            timerObj.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                calculateResult();
+            }
+        }, 1000);
+    }
+
+    // Submit Logic
+    window.triggerSubmit = () => {
+        const attempted = answers.filter(a => a !== null).length;
+        if (confirm(`You have attempted ${attempted} out of 100 questions. Do you want to submit?`)) {
+            calculateResult();
+        }
+    };
+
+    function calculateResult() {
+        let correct = 0;
+        let attempted = 0;
+        answers.forEach((ans, i) => {
+            if (ans !== null) {
+                attempted++;
+                if (ans === questions[i].a) correct++;
+            }
+        });
+
+        document.getElementById('res-att').innerText = attempted;
+        document.getElementById('res-cor').innerText = correct;
+        document.getElementById('res-wro').innerText = attempted - correct;
+        document.getElementById('res-sco').innerText = `${correct} / 100`;
+        document.getElementById('res-sta').innerText = correct >= 50 ? "PASSED" : "FAILED";
+        document.getElementById('res-sta').style.color = correct >= 50 ? "green" : "red";
+        
+        document.getElementById('exam-ui').style.display = 'none';
+        document.getElementById('result-overlay').style.display = 'flex';
+    }
+
+    // Init
+    loadQuestion(0);
+    startTimer();
 
 </script>
 </body>
